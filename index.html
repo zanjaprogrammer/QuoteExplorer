@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Quote Explorer</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+
+<div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  container mx-auto p-4 hidden" id="formQuote">
+    <form class="max-w-md mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <input type="hidden" id="mode"/>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="quote">
+                Quote
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="quote" type="text" placeholder="Enter Quote">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="author">
+                Author
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="author" type="text" placeholder="Enter Author">
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="saveQuote()">
+                OK
+            </button>
+            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="cancel()">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<div id="content" class="flex flex-col items-center justify-center h-screen">
+
+    <div class="flex">
+        <div id="containerContentId" class="flex justify-center items-center">
+            <blockquote class="border border-gray-300 rounded-md p-4 bg-white shadow-md">
+                <p id="quoteContent" class="text-lg font-medium mb-2"></p>
+                <footer><i id="quoteAuthor" class="text-sm"></i></footer>
+            </blockquote>
+        </div>
+
+        <div id="containerToolbar" class="ml-1 flex flex-col text-xs">
+            <button class="p-1 mb-1 bg-blue-500 text-white rounded-full focus:outline-none" onclick="addQuote()">
+                <i class="fas fa-plus"></i>
+            </button>
+            <!-- Edit -->
+            <button class="p-1 mb-1 bg-yellow-500 text-white rounded-full focus:outline-none" onclick="editQuote()">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <!-- Delete -->
+            <button class="p-1 bg-red-500 text-white rounded-full focus:outline-none" onclick="deleteQuote()">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <div id="containerButton" class="flex justify-center items-center">
+        <button id="btnLeft" class="rounded-tl-lg rounded-bl-lg mt-2 text-white  w-8 h-8 bg-green-500 hover:bg-green-600" onclick="prevQuote()">
+            <i class="fas fa-caret-left"></i>
+        </button>
+        <button id="btnRight" class="mt-2 text-white rounded-tr-lg rounded-br-lg  w-8 h-8 bg-green-500 hover:bg-green-600" onclick="nextQuote()"><i class="fas fa-caret-right"></i></button>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
