@@ -1,27 +1,31 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 console.log("Script started");
 
-let quotesArray = [
-    {
-        "quote": "Banyak bicara, banyak bekerja",
-        "author": "Bung Karno"
-    },
-    {
-        "quote": "Habis gelap terbitlah terang",
-        "author": "R.A Kartini"
-    },
-    {
-        "quote": "One day tidak sama dengan Day one",
-        "author": "Alkahf M. Z."
-    }
-]
+// let quotesArray = [
+//     {
+//         "quote": "Banyak bicara, banyak bekerja",
+//         "author": "Bung Karno"
+//     },
+//     {
+//         "quote": "Habis gelap terbitlah terang",
+//         "author": "R.A Kartini"
+//     },
+//     {
+//         "quote": "One day tidak sama dengan Day one",
+//         "author": "Alkahf M. Z."
+//     }
+// ]
+
+let quotesArray = [];
 
 let indexCurrentItem = 0;
 
-huruf = ['a', 'b', 'c', 'd', 'e', 'f']; //array, hanya bisa diakses dengan angka ordinal 0 ... len-1
+let huruf = ['a', 'b', 'c', 'd', 'e', 'f']; //array, hanya bisa diakses dengan angka ordinal 0 ... len-1
 console.log("huruf", huruf);
 console.log(huruf[3]);
 
-hurufmap = {
+let hurufmap = {
     'a': 'Huruf A',
     "b": 'Huruf B',
     'c': "Huruf C",
@@ -29,6 +33,55 @@ hurufmap = {
 console.log("hurufmap",hurufmap);
 console.log(hurufmap['a']);
 //Tugas: ambil huruf ke 5 dan hurufmap dengan key 'c'
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded");
+    document.getElementById("btnLeft").addEventListener('click', prevQuote);
+    document.getElementById("btnRight").addEventListener('click', nextQuote);
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDhaXSu8B8W4AGLNzq2BmWC7uIddPbSp5Q",
+        authDomain: "quoteexplorer-c1889.firebaseapp.com",
+        projectId: "quoteexplorer-c1889",
+        storageBucket: "quoteexplorer-c1889.appspot.com",
+        messagingSenderId: "47269918980",
+        appId: "1:47269918980:web:b5f0a27499abb31df37851",
+        measurementId: "G-08862G2B8D"
+    };
+
+// Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    console.log(db);
+    console.log(app);
+
+    getDocs(collection(db, 'quote'))
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                let data = doc.data();
+                console.log(data);
+
+                //Ini karena author adalah reference ke collection author
+                //Jika tidak maka tidak perlu melakukan getdoc lagi
+                const authorRef = data.author;
+                getDoc(authorRef).then((authorDoc) => {
+                    if (authorDoc.exists()) {
+                        const authorData = authorDoc.data();
+                        data.author = authorData.name;
+                        quotesArray.push(data);
+                        displayQuote();
+                    } else {
+                        console.log('Author document not found');
+                    }
+                });
+            });
+            console.log('Quotes:', quotesArray);
+            displayQuote();
+        })
+        .catch((error) => {
+            console.error('Error fetching quotes:', error);
+        });
+})
 
 function prevQuote(){
     console.log("prevQuote");
@@ -41,6 +94,7 @@ function displayQuote() {
     let quoteAuthor ="";
     let quoteContent="";
 
+    if (quotesArray.length === 0) return;
     quoteContent = quotesArray[indexCurrentItem].quote;
     quoteAuthor = quotesArray[indexCurrentItem].author;
 
@@ -63,10 +117,6 @@ function nextQuote(){
 
 }
 
-//DOM: DOcument Object Model => HTML
-document.addEventListener("DOMContentLoaded", function(){
-    displayQuote();
-});
 
 /*
 PE ER: Jika index sudah di ujung2, maka buat tombol yang sesuai menjadi cursor normal (yang sekarang cursor pointer)
