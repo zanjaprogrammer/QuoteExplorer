@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-console.log("Script started");
+import { getFirestore, collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";console.log("Script started");
 
 // let quotesArray = [
 //     {
@@ -34,10 +33,19 @@ console.log("hurufmap",hurufmap);
 console.log(hurufmap['a']);
 //Tugas: ambil huruf ke 5 dan hurufmap dengan key 'c'
 
+let app = null;
+let db = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded");
     document.getElementById("btnLeft").addEventListener('click', prevQuote);
     document.getElementById("btnRight").addEventListener('click', nextQuote);
+    document.getElementById("btnAdd").addEventListener('click', addQuote);
+    document.getElementById("btnEdit").addEventListener('click', editQuote);
+    document.getElementById("btnSave").addEventListener('click', saveQuote);
+    document.getElementById("btnCancel").addEventListener('click', cancel);
+    document.getElementById("btnDel").addEventListener('click', deleteQuote);
+
 
     const firebaseConfig = {
         apiKey: "AIzaSyDhaXSu8B8W4AGLNzq2BmWC7uIddPbSp5Q",
@@ -50,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
     console.log(db);
     console.log(app);
 
@@ -60,20 +68,30 @@ document.addEventListener('DOMContentLoaded', () => {
             querySnapshot.forEach((doc) => {
                 let data = doc.data();
                 console.log(data);
+                data.key = doc.id;
+                console.log("cek key", data);
 
                 //Ini karena author adalah reference ke collection author
                 //Jika tidak maka tidak perlu melakukan getdoc lagi
+                console.log("data.author", data.author);
                 const authorRef = data.author;
-                getDoc(authorRef).then((authorDoc) => {
-                    if (authorDoc.exists()) {
-                        const authorData = authorDoc.data();
-                        data.author = authorData.name;
-                        quotesArray.push(data);
-                        displayQuote();
-                    } else {
-                        console.log('Author document not found');
-                    }
-                });
+                if(data.author != null) {
+                    getDoc(authorRef).then((authorDoc) => {
+                        if (authorDoc.exists()) {
+                            const authorData = authorDoc.data();
+                            data.author = authorData.name;
+                            quotesArray.push(data);
+                            displayQuote();
+                        } else {
+                            console.log('Author document not found');
+                        }
+                    });
+                }
+                else{
+                    console.log("data", data);
+                    data.author = "Work In Progress";
+                    quotesArray.push(data);
+                }
             });
             console.log('Quotes:', quotesArray);
             displayQuote();
@@ -134,7 +152,7 @@ function addQuote(){
 
 function saveQuote(){
     let mode = document.getElementById("mode").value;
-    console.log("saveQuote", mode);
+    console.log(db);
     const formQuote = document.getElementById("formQuote");
 
     //simpan quote baru ke variable ARRAY
@@ -145,24 +163,49 @@ function saveQuote(){
     console.log(quote, author);
 
     if(mode === "add") {
-        quotesArray.push( //kita akan memasukkan elemen MAP quote dan author
-            {
-                "quote": quote,
-                "author": author
-            }
-        );
-        indexCurrentItem = quotesArray.length - 1;
+        //dengan javascript es 6, simpan ke firestore collection Quote
+
+        addDoc(collection(db, "quote"), {
+            quote: quote,
+        })
+            .then(() => {
+                quotesArray.push( //kita akan memasukkan elemen MAP quote dan author
+                    {
+                        "quote": quote,
+                        "author": author
+
+                    }
+                );
+                indexCurrentItem = quotesArray.length - 1;
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
     }else {
-        let quote = document.getElementById("quote").value;
-        let author = document.getElementById("author").value;
-        console.log("Editing array", quote, author);
+            let quote = document.getElementById("quote").value;
+            let author = document.getElementById("author").value;
+            console.log("Editing array", quote, author);
 
-        quotesArray[indexCurrentItem].quote = quote;
-        quotesArray[indexCurrentItem].author = author;
+            //TODO: dengan javascript es 6, save ke collection quote dengan key
+            // yang ada di quotesArray[index].key
+            let quoteKey = quotesArray[indexCurrentItem].key;
+            console.log("quoteKey", quoteKey);
+            const quoteRef = doc(db, 'quote', quoteKey);
+            updateDoc(quoteRef, {
+                quote: quote,
+            })
+            .then(() => {
+                quotesArray[indexCurrentItem].quote = quote;
+                quotesArray[indexCurrentItem].author = author;
+                console.log("1 ", quote);
+                console.log("2 ", quotesArray[indexCurrentItem].quote);
+                displayQuote();
+
+            })
+            .catch((error) => {
+                console.error('Error updating document: ', error);
+            });
     }
-
-    displayQuote();
-
     formQuote.classList.add("hidden");
 }
 
@@ -191,10 +234,20 @@ function deleteQuote(){
         let quote = quotesArray[indexCurrentItem].quote;
         if (confirm(`Quote ini akan dihapus: "${quote}". Yakin?`)) {
             console.log("deleteQuote")
-            quotesArray.splice(indexCurrentItem, 1);
-            if(indexCurrentItem > quotesArray.length - 1) indexCurrentItem--;
-            displayQuote();
+            let quoteKey = quotesArray[indexCurrentItem].key;
+            const quoteRef = doc(db, 'quote', quoteKey);
+            deleteDoc(quoteRef)
+                .then(() => {
+                    console.log('Document successfully deleted!');
+                    quotesArray.splice(indexCurrentItem, 1);
+                    if(indexCurrentItem > quotesArray.length - 1) indexCurrentItem--;
+                    displayQuote();
+                })
+                .catch((error) => {
+                    console.error('Error deleting document: ', error);
+                });
         }
+
     }
 }
 

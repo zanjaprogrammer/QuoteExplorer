@@ -27,10 +27,10 @@
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="author" type="text" placeholder="Enter Author">
         </div>
         <div class="flex items-center justify-between">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="saveQuote()">
+            <button id="btnSave" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
                 OK
             </button>
-            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="cancel()">
+            <button id="btnCancel" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
                 Cancel
             </button>
         </div>
@@ -49,15 +49,15 @@
         </div>
 
         <div id="containerToolbar" class="ml-1 flex flex-col text-xs">
-            <button class="p-1 mb-1 bg-blue-500 text-white rounded-full focus:outline-none" onclick="addQuote()">
+            <button id="btnAdd" class="p-1 mb-1 bg-blue-500 text-white rounded-full focus:outline-none">
                 <i class="fas fa-plus"></i>
             </button>
             <!-- Edit -->
-            <button class="p-1 mb-1 bg-yellow-500 text-white rounded-full focus:outline-none" onclick="editQuote()">
+            <button id="btnEdit" class="p-1 mb-1 bg-yellow-500 text-white rounded-full focus:outline-none">
                 <i class="fas fa-pencil-alt"></i>
             </button>
             <!-- Delete -->
-            <button class="p-1 bg-red-500 text-white rounded-full focus:outline-none" onclick="deleteQuote()">
+            <button id="btnDel" class="p-1 bg-red-500 text-white rounded-full focus:outline-none">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
